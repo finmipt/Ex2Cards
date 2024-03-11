@@ -5,33 +5,27 @@ import glob
 import os
 
 # Чтение данных и подготовка к созданию документов
-excel_file_path = 'JV2902OP.xlsx'
+excel_file_path = 'JV2902.xlsx'
 student_data = pd.read_excel(excel_file_path, usecols="A,B,D")
 num_rows = len(student_data)
-cards_per_page = 6
+cards_per_page = 1
 num_pages = -(-num_rows // cards_per_page)  # Округление вверх
 
-# Генерация отдельных документов
-for page in range(num_pages):
-    doc = DocxTemplate("sample.docx")
+for row in range(num_rows):
+    doc = DocxTemplate("sample_one.docx")
     context = {}
-    for card in range(1, cards_per_page + 1):
-        row_index = page * cards_per_page + card - 1
-        if row_index >= num_rows:
-            break
-        student_row = student_data.iloc[row_index]
-        # I need to capitalize all the names
-
-        context[f'name_{card}'] = student_row[0]
-        context[f'group_{card}'] = student_row[1].title()
-        context[f'work_{card}'] = student_row[2]
-        context[f'teacher'] = 'Oksana Pavelkovitš'  #  "Ilia Bogatyrev"
-        context[f'materials'] = 'Vihikud, kalkulaator'
+    student_row = student_data.iloc[row]
+    context[f'name'] = student_row[0]
+    context[f'group'] = student_row[1]
+    context[f'work'] = student_row[2]
+    context[f'teacher'] = "Ilia Bogatyrev"   # 'Oksana Pavelkovitš'
+    context[f'materials'] = 'Vihikud, kalkulaator'
     doc.render(context)
-    doc.save(f'generated_doc{page}.docx')
+    doc.save(f'generated_page_{row}.docx')
+
 
 # Сбор имен файлов для объединения
-files_to_merge = glob.glob('generated_doc*.docx')
+files_to_merge = glob.glob('generated_page*.docx')
 
 # Создание объединенного документа
 merged_document = Document()
@@ -41,7 +35,7 @@ for file_name in files_to_merge:
         merged_document.element.body.append(element)
 
 # Сохранение объединенного документа
-merged_document.save('merged_document0102OP.docx')
+merged_document.save('merged_document_all_2902.docx')
 
 # Удаление исходных файлов
 for file_name in files_to_merge:
